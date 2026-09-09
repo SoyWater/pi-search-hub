@@ -1,4 +1,4 @@
-import { AuthStorage } from "@earendil-works/pi-coding-agent";
+import { readStoredCredential } from "@earendil-works/pi-coding-agent";
 import {
 	getModel,
 	streamOpenAICodexResponses,
@@ -98,11 +98,20 @@ export async function searchOpenAICodex(
 	return { results };
 }
 
+/**
+ * Resolve the OpenAI Codex credential from ~/.pi/agent/auth.json.
+ *
+ * Uses `readStoredCredential` (the SDK's supported one-off read path since
+ * 0.80.8, when `AuthStorage` was removed from the public exports).
+ */
 async function resolveOpenAICodexAccessToken(): Promise<string> {
-	const authStorage = AuthStorage.create();
-	const apiKey = await authStorage.getApiKey("openai-codex", {
-		includeFallback: false,
-	});
+	const credential = readStoredCredential("openai-codex");
+	const apiKey =
+		credential?.type === "oauth"
+			? credential.access
+			: credential?.type === "api_key"
+				? credential.key
+				: undefined;
 
 	if (!apiKey) {
 		throw new Error("OpenAI Codex authentication not found. Run /login and select OpenAI Codex.");

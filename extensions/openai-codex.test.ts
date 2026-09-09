@@ -5,11 +5,12 @@ const { streamOpenAICodexResponsesMock } = vi.hoisted(() => ({
 }));
 
 vi.mock("@earendil-works/pi-coding-agent", () => ({
-	AuthStorage: {
-		create: () => ({
-			getApiKey: async () => "test-api-key",
-		}),
-	},
+	readStoredCredential: () => ({
+		type: "oauth",
+		access: "test-api-key",
+		refresh: "test-refresh-token",
+		expires: Date.now() + 3600_000,
+	}),
 }));
 
 vi.mock("@earendil-works/pi-ai", () => ({
